@@ -1,5 +1,36 @@
 # @cofhe/react
 
+## 0.7.0
+
+### Minor Changes
+
+- 24edf0c: feat(react): useKnownCofheToken; useCofheToken no longer probes on-chain
+
+  New `useKnownCofheToken({ chainId, address })`: resolves a token address against what the
+  client already knows — configured tokenlists, imported (custom) tokens, and the chain's
+  default token. Never touches the chain; unknown resolves to `undefined`.
+
+  `useCofheToken` no longer falls back to `useResolvedCofheToken`'s on-chain interface probe
+  for unlisted addresses. The silent fallback was incorrect: it also fired for known tokens
+  during the tokenlist-loading window and probed the connected chain regardless of the
+  requested `chainId`, producing spurious "Address is not a supported CoFHE token" failures
+  for stale or wrong-chain addresses. It now delegates to `useKnownCofheToken` (its options
+  parameter is deprecated and unused). Consumers that genuinely want on-chain resolution
+  must call `useResolvedCofheToken` explicitly.
+
+### Patch Changes
+
+- 2862a63: fix(react): persist only successful query states
+
+  The persistence filter checked only the `meta.persist` opt-in, without react-query's default status check, so a query was dehydrated in whatever state it was in — including `error`. A restored errored query never refetches (persisted queries default to `staleTime: Infinity` / `refetchOnMount: false`), leaving the consumer stuck with a permanent failed state that survives reloads and emits no error event on hydration.
+
+  Only successful states are persisted now. Once a query errors, its entry (including any previously persisted success) is dropped from the snapshot, so the next load starts clean and fetches live.
+
+- Updated dependencies [d4d662f]
+- Updated dependencies [f01cac7]
+  - @cofhe/sdk@0.7.0
+  - @cofhe/abi@0.7.0
+
 ## 0.6.1
 
 ### Patch Changes

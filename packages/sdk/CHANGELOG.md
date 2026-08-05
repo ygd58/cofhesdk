@@ -1,5 +1,19 @@
 # @cofhe/sdk Changelog
 
+## 0.7.0
+
+### Patch Changes
+
+- d4d662f: fix(sdk): don't activate delegated (sharing) permits on creation
+
+  `createPermitWithSign` always stored the newly created permit as the issuer's active permit, so creating a delegated/sharing permit hijacked the issuer's own active permit. A delegated permit is for the recipient and must not change the issuer's active permit.
+
+  `createSharing` now defaults to store-only; `getOrCreateSharingPermit` (which genuinely wants an active sharing permit) opts in via `activate: true`. Self permits are unchanged.
+
+- f01cac7: Decrypt/sealoutput failures now map the threshold network's stable `error` codes to dedicated `CofheErrorCode` values (e.g. `PermitDenied`, `CtNotFound`, `UnsupportedType`) instead of a generic `DecryptFailed`/`SealOutputFailed`, and `CofheError` gains an `apiErrorCode` field with the raw backend string.
+
+  Also fixes submit-time `404` retries: a `404` is only retried while the backend reports `ct_not_found` (still indexing); any other error code now fails immediately instead of being blindly retried for up to `set404RetryTimeout`.
+
 ## 0.6.1
 
 ### Patch Changes
